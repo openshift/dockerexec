@@ -20,7 +20,7 @@ var standardEnvironment = &cli.StringSlice{
 
 // RunInContainer runs a process in a running docker container using the options
 // specified. It returns the exit code and/or error.
-func RunInContainer(containerId string, options DockerExecOptions) (int, error) {
+func RunInContainer(containerId string, options *DockerExecOptions) (int, error) {
 	var factory libcontainer.Factory
 	var config *configs.Config
 	var err error
