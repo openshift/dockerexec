@@ -2,8 +2,10 @@ package libdocker
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/docker/libcontainer"
 	"github.com/docker/libcontainer/cgroups/systemd"
@@ -11,10 +13,11 @@ import (
 )
 
 const (
-	execDriverRoot = "/var/run/docker/execdriver/native"
-	containerRoot  = "/var/lib/docker/containers"
-	configFilename = "config.json"
-	stateFilename  = "state.json"
+	execDriverRoot   = "/var/run/docker/execdriver/native"
+	containerRoot    = "/var/lib/docker/containers"
+	configFilename   = "config.json"
+	stateFilename    = "state.json"
+	hostnameFilename = "hostname"
 )
 
 func loadDockerFactory() (libcontainer.Factory, error) {
@@ -75,4 +78,13 @@ func loadContainerConfig(containerId string) (*ContainerConfig, error) {
 		return nil, err
 	}
 	return cfg, nil
+}
+
+func getContainerHostName(containerId string) (string, error) {
+	hostnamePath := filepath.Join(containerRoot, containerId, hostnameFilename)
+	hcontents, err := ioutil.ReadFile(hostnamePath)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(hcontents)), nil
 }
