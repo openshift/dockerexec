@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
 	"github.com/docker/libcontainer"
 	dl "github.com/openshift/dockerexec/pkg/libdocker"
@@ -22,8 +23,8 @@ var execCommand = cli.Command{
 	Action: execAction,
 	Flags: append([]cli.Flag{
 		cli.BoolFlag{Name: "tty,t", Usage: "allocate a TTY to the container"},
-		cli.StringFlag{Name: "id", Value: "nsinit", Usage: "specify the ID for a container"},
-		cli.StringFlag{Name: "user,u", Value: "root", Usage: "set the user, uid, and/or gid for the process"},
+		cli.StringFlag{Name: "id", Value: "", Usage: "specify the ID for a container"},
+		cli.StringFlag{Name: "user,u", Value: "", Usage: "set the user, uid, and/or gid for the process"},
 		cli.StringFlag{Name: "cwd", Value: "", Usage: "set the current working dir"},
 		cli.StringSliceFlag{Name: "env", Value: standardEnvironment, Usage: "set environment variables for the process"},
 	}, createFlags...),
@@ -31,6 +32,15 @@ var execCommand = cli.Command{
 
 func execAction(context *cli.Context) {
 	containerId := context.String("id")
+
+	if containerId == "" {
+		log.Fatal("Please specify a docker id")
+	}
+
+	if len(context.Args()) == 0 {
+		log.Fatal("Please specify a command to run in the container")
+	}
+
 	execOptions := &dl.DockerExecOptions{
 		Args:   context.Args(),
 		Env:    context.StringSlice("env"),
