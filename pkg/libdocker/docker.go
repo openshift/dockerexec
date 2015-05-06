@@ -6,17 +6,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/codegangsta/cli"
 	"github.com/docker/libcontainer"
 	"github.com/docker/libcontainer/configs"
 	"github.com/docker/libcontainer/utils"
 )
-
-var standardEnvironment = &cli.StringSlice{
-	"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-	"HOSTNAME=nsinit",
-	"TERM=xterm",
-}
 
 // RunInContainer runs a process in a running docker container using the options
 // specified. It returns the exit code and/or error.
@@ -43,10 +36,19 @@ func RunInContainer(containerId string, options *DockerExecOptions) (int, error)
 	if err != nil {
 		return -1, err
 	}
+
+	user := options.User
+	if user == "" {
+		user = containerConfig.Config.User
+	}
+
+	env := containerConfig.Config.Env
+	env = append(env, options.Env...)
+
 	process := &libcontainer.Process{
 		Args:   options.Args,
-		Env:    options.Env,
-		User:   options.User,
+		Env:    env,
+		User:   user,
 		Cwd:    options.Cwd,
 		Stdin:  options.Stdin,
 		Stdout: options.Stdout,
