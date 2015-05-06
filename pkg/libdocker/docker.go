@@ -1,6 +1,7 @@
 package libdocker
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -44,6 +45,13 @@ func RunInContainer(containerId string, options *DockerExecOptions) (int, error)
 
 	env := containerConfig.Config.Env
 	env = append(env, options.Env...)
+
+	hostname, err := getContainerHostName(containerId)
+	if err != nil {
+		return -1, err
+	}
+	hostnameEnv := fmt.Sprintf("HOSTNAME=%s", hostname)
+	env = append(env, hostnameEnv)
 
 	process := &libcontainer.Process{
 		Args:   options.Args,
