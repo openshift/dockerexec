@@ -23,6 +23,7 @@ var standardEnvironment = &cli.StringSlice{
 func RunInContainer(containerId string, options *DockerExecOptions) (int, error) {
 	var factory libcontainer.Factory
 	var config *configs.Config
+	var containerConfig *ContainerConfig
 	var err error
 	factory, err = loadDockerFactory()
 	if err != nil {
@@ -34,6 +35,11 @@ func RunInContainer(containerId string, options *DockerExecOptions) (int, error)
 	}
 
 	container, err := factory.Load(containerId)
+	if err != nil {
+		return -1, err
+	}
+
+	containerConfig, err = loadContainerConfig(containerId)
 	if err != nil {
 		return -1, err
 	}

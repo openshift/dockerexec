@@ -11,8 +11,10 @@ import (
 )
 
 const (
-	dockerRoot    = "/var/run/docker/execdriver/native"
-	stateFilename = "state.json"
+	execDriverRoot = "/var/run/docker/execdriver/native"
+	containerRoot  = "/var/lib/docker/containers"
+	configFilename = "config.json"
+	stateFilename  = "state.json"
 )
 
 func loadDockerFactory() (libcontainer.Factory, error) {
@@ -20,7 +22,7 @@ func loadDockerFactory() (libcontainer.Factory, error) {
 	if systemd.UseSystemd() {
 		cgm = libcontainer.SystemdCgroups
 	}
-	return libcontainer.New(dockerRoot, cgm)
+	return libcontainer.New(execDriverRoot, cgm)
 }
 
 func loadState(root string) (*libcontainer.State, error) {
@@ -39,8 +41,24 @@ func loadState(root string) (*libcontainer.State, error) {
 	return state, nil
 }
 
+func loadConfig(cfgPath string) (*ContainerConfig, error) {
+	f, err := os.Open(cfgPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, err
+		}
+		return nil, err
+	}
+	defer f.Close()
+	var config *ContainerConfig
+	if err := json.NewDecoder(f).Decode(&config); err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
 func loadDockerConfig(containerId string) (*configs.Config, error) {
-	containerRoot := filepath.Join(dockerRoot, containerId)
+	containerRoot := filepath.Join(execDriverRoot, containerId)
 	state, err := loadState(containerRoot)
 	if err != nil {
 		return nil, err
@@ -48,4 +66,13 @@ func loadDockerConfig(containerId string) (*configs.Config, error) {
 	config := &state.Config
 	//modify(config, context)
 	return config, nil
+}
+
+func loadContainerConfig(containerId string) (*ContainerConfig, error) {
+	configPath := filepath.Join(containerRoot, containerId, configFilename)
+	cfg, err := loadConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
+	return cfg, nil
 }
