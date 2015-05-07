@@ -10,7 +10,6 @@ import (
 
 var standardEnvironment = &cli.StringSlice{
 	"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-	"HOSTNAME=nsinit",
 	"TERM=xterm",
 }
 
@@ -55,5 +54,4 @@ func execAction(context *cli.Context) {
 	}
 
 	os.Exit(retCode)
-
 }
