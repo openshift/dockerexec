@@ -14,6 +14,9 @@ func expandContainerId(id string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if len(matches) == 0 {
+		return "", fmt.Errorf("No containers matching the id %s found", id)
+	}
 	if len(matches) > 1 {
 		return "", fmt.Errorf("More than one match found for the id, please provide a longer prefix.")
 	}
