@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
+	"github.com/docker/libcontainer"
 )
 
 func main() {
@@ -18,14 +20,8 @@ func main() {
 		cli.BoolFlag{Name: "debug", Usage: "enable debug output in the logs"},
 	}
 	app.Commands = []cli.Command{
-		configCommand,
 		execCommand,
 		initCommand,
-		oomCommand,
-		pauseCommand,
-		statsCommand,
-		unpauseCommand,
-		stateCommand,
 	}
 	app.Before = func(context *cli.Context) error {
 		if context.GlobalBool("debug") {
@@ -43,4 +39,13 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func fatal(err error) {
+	if lerr, ok := err.(libcontainer.Error); ok {
+		lerr.Detail(os.Stderr)
+		os.Exit(1)
+	}
+	fmt.Fprintln(os.Stderr, err)
+	os.Exit(1)
 }
