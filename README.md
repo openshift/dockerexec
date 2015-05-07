@@ -21,7 +21,7 @@ bash-4.3$ id
 uid=2(daemon) gid=2(daemon) groups=2(daemon)
 bash-4.3$
 
-# Run dockerexec specifying the same container id (longest unique prefix works)
+# Run dockerexec specifying the same container id (shortest unique prefix works)
 [root@localhost containers]# dockerexec exec  -t  --id 8b1b sh
 sh-4.3$ env
 HOSTNAME=8b1b399c89fd
@@ -69,7 +69,7 @@ _=/usr/bin/env
 sh-4.3# id
 uid=0(root) gid=0(root) groups=0(root)
 
-[root@localhost busybox]# dockerexec help exec
+[root@localhost containers]# dockerexec help exec
 NAME:
    exec - execute a new command inside a container
 
@@ -80,8 +80,8 @@ DESCRIPTION:
    
 
 OPTIONS:
-   --tty, -t                            allocate a TTY to the container
-   --id                                 specify the ID for a container
+   --tty, -t                            allocate a TTY for the exec process
+   --id                                 specify the ID of a running docker container
    --user, -u                           set the user, uid, and/or gid for the process
    --cwd                                set the current working dir
    --env '--env option --env option'    set environment variables for the process

@@ -18,8 +18,8 @@ var execCommand = cli.Command{
 	Usage:  "execute a new command inside a container",
 	Action: execAction,
 	Flags: []cli.Flag{
-		cli.BoolFlag{Name: "tty,t", Usage: "allocate a TTY to the container"},
-		cli.StringFlag{Name: "id", Value: "", Usage: "specify the ID for a container"},
+		cli.BoolFlag{Name: "tty,t", Usage: "allocate a TTY for the exec process"},
+		cli.StringFlag{Name: "id", Value: "", Usage: "specify the ID of a running docker container"},
 		cli.StringFlag{Name: "user,u", Value: "", Usage: "set the user, uid, and/or gid for the process"},
 		cli.StringFlag{Name: "cwd", Value: "", Usage: "set the current working dir"},
 		cli.StringSliceFlag{Name: "env", Value: standardEnvironment, Usage: "set environment variables for the process"},
