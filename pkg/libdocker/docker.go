@@ -14,11 +14,16 @@ import (
 
 // RunInContainer runs a process in a running docker container using the options
 // specified. It returns the exit code and/or error.
-func RunInContainer(containerId string, options *DockerExecOptions) (int, error) {
+func RunInContainer(id string, options *DockerExecOptions) (int, error) {
 	var factory libcontainer.Factory
 	var config *configs.Config
 	var containerConfig *ContainerConfig
 	var err error
+
+	containerId, err := expandContainerId(id)
+	if err != nil {
+		return -1, err
+	}
 	factory, err = loadDockerFactory()
 	if err != nil {
 		return -1, err
