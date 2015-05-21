@@ -1,7 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
+	"strconv"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
@@ -26,8 +31,35 @@ var execCommand = cli.Command{
 	},
 }
 
+func getDockerPid() (int, error) {
+	args := []string{"show", "-p", "MainPID", "docker.service"}
+	out, err := exec.Command("systemctl", args...).Output()
+	if err != nil {
+		return -1, err
+	}
+	line := strings.TrimSpace(string(out))
+	parts := strings.Split(line, "=")
+	if len(parts) != 2 {
+		return -1, fmt.Errorf("unexpected output trying to get docker pid: %v", line)
+	}
+
+	pid, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return -1, fmt.Errorf("failed to parse docker pid: %v", err)
+	}
+
+	return pid, nil
+}
+
 func execAction(context *cli.Context) {
+	runtime.LockOSThread()
 	containerId := context.String("id")
+
+	dockerPid, err := getDockerPid()
+	if err != nil {
+		fmt.Println("Error getting pid: %v", err)
+	}
+	fmt.Println("Docker PID: ", dockerPid)
 
 	if containerId == "" {
 		log.Fatal("Please specify a docker id")
