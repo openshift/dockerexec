@@ -52,11 +52,10 @@ func RunInContainer(id string, options *DockerExecOptions) (int, error) {
 	env = append(env, options.Env...)
 
 	hostname, err := getContainerHostName(containerId)
-	if err != nil {
-		return -1, err
+	if err == nil {
+		hostnameEnv := fmt.Sprintf("HOSTNAME=%s", hostname)
+		env = append(env, hostnameEnv)
 	}
-	hostnameEnv := fmt.Sprintf("HOSTNAME=%s", hostname)
-	env = append(env, hostnameEnv)
 
 	process := &libcontainer.Process{
 		Args:   options.Args,
